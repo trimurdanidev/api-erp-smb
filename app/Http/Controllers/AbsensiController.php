@@ -192,7 +192,7 @@ class AbsensiController extends Controller
 
     public function showAbsenDay($userid, $dateAbsen): JsonResponse
     {
-        \DB::enableQueryLog();
+        // \DB::enableQueryLog();
         $absensi = Absensi::select([
             'absensi.id',
             'user_id',
