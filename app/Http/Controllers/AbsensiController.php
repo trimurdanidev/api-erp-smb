@@ -69,7 +69,9 @@ class AbsensiController extends Controller
             $data = $request->all();
 
             if ($request->hasFile('images_in')) {
-                $data['images_in'] = $request->file('images_in')->store('absensi_images', 'public');
+                $data['images_in'] = $request->file('images_in');
+                $fileName = 'IN_' . $request->user_id . '_' . time() . '.' . $data['images_in']->getClientOriginalExtension();
+                $data['images_in']->move(public_path('absensi_images'), $fileName);
             }
 
             // if ($request->hasFile('images_out')) {

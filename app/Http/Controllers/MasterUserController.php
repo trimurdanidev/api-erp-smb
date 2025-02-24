@@ -172,6 +172,7 @@ class MasterUserController extends Controller
             'token_type' => 'Bearer',
             'expires_in' => Auth::guard('api')->factory()->getTTL() * 60,
             'master_user' => [
+                'id' => $user->id,
                 'user' => $user->user,
                 'description' => $user->description,
                 'username' => $user->username,
