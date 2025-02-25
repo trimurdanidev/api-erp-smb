@@ -69,9 +69,14 @@ class AbsensiController extends Controller
             $data = $request->all();
 
             if ($request->hasFile('images_in')) {
-                $data['images_in'] = $request->file('images_in');
-                $fileName = 'IN_' . $request->user_id . '_' . time() . '.' . $data['images_in']->getClientOriginalExtension();
-                $data['images_in']->move(public_path('absensi_images'), $fileName);
+
+                 if ($request->hasFile('images_in')) {
+            //     Storage::delete('public/' . $absensi->images_in);
+                $data['images_in'] = $request->file('images_in')->store('absensi_images', 'public');
+            }
+            //     $data['images_in'] = $request->file('images_in');
+            //     $fileName = 'IN_' . $request->user_id . '_' . time() . '.' . $data['images_in']->getClientOriginalExtension();
+            //     $data['images_in']->move(public_path('absensi_images'), $fileName);
             }
 
             // if ($request->hasFile('images_out')) {
@@ -265,15 +270,17 @@ class AbsensiController extends Controller
                 return response()->json(['errors' => $validator->errors()], 422);
             }
 
-            // if ($request->hasFile('images_in')) {
-            //     Storage::delete('public/' . $absensi->images_in);
-            //     $absensi->images_in = $request->file('images_in')->store('absensi_images', 'public');
+            // if ($request->hasFile('images_out')) {
+            //     Storage::delete('public/' . $absensi->images_out);
+            //     $absensi->images_out = $request->file('images_out')->store('absensi_images', 'public');
             // }
 
             if ($request->hasFile('images_out')) {
-                Storage::delete('public/' . $absensi->images_out);
-                $absensi->images_out = $request->file('images_out')->store('absensi_images', 'public');
+                $data['images_out'] = $request->file('images_out');
+                $fileName = 'OUT' . $request->user_id . '_' . time() . '.' . $data['images_out']->getClientOriginalExtension();
+                $data['images_out']->move(public_path('absensi_images'), $fileName);
             }
+
 
             $absensi->update($request->except(['images_out']));
 
