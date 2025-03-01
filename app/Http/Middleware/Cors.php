@@ -16,6 +16,11 @@ class Cors
      */
     public function handle(Request $request, Closure $next)
     {
+        if (!$request->secure()) {
+            return redirect()->secure($request->getRequestUri());
+        }
+
+
         $response = $next($request);
 
         // Tambahkan Header CORS
