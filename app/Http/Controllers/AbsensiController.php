@@ -243,6 +243,53 @@ class AbsensiController extends Controller
         ], 200);
     }
 
+    public function showAbsenRange($userid, $star,$end): JsonResponse
+    {
+        // \Absensi::enableQueryLog();
+        $absensi = Absensi::select([
+            'absensi.id',
+            'user_id',
+            'date',
+            'time_in',
+            'longitude_in',
+            'latitude_in',
+            'images_in',
+            'time_out',
+            'longitude_out',
+            'latitude_out',
+            'images_out',
+            'schedule_code',
+            'absensi_ref',
+            'absensi.created_by',
+            'absensi.created_at',
+            'absensi.updated_at',
+            'absensi.deleted_at',
+            'master_user.user',
+            'master_user.description',
+            'master_user.username',
+            'master_department.departmentcode',
+            'master_department.description AS department',
+        ])
+            ->join('master_user', 'master_user.user', '=', 'absensi.user_id')
+            ->join('master_department', 'master_user.departmentid', '=', 'master_department.departmentid')
+            ->where("absensi.user_id", "=", $userid)
+            // ->where("date", "=", $dateAbsen)
+            ->whereBetween('date', [$star, $end])
+            ->get();
+        // ->count($absensi);
+        // dd(\DB::getQueryLog());
+
+
+        if (!$absensi) {
+            return response()->json(['message' => 'Data Tidak Ditemukan'], 404);
+        }
+
+        return response()->json([
+            'message' => "Berhasil",
+            'data' => $absensi
+        ], 200);
+    }
+
     public function update(Request $request): JsonResponse
     {
         try {
