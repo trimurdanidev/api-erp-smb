@@ -50,6 +50,7 @@ Route::middleware('auth:api')->delete('/deleteDept',[AbsensiController::class,'d
 Route::get('/getAbsenDay/{absensiId}/{dateAbsen}',[AbsensiController::class,'showAbsenDayUser']);
 Route::get('/getAbsenUser/{userid}/{dateAbsen}',[AbsensiController::class,'showAbsenDay']);
 Route::get('/getAbsenRekap/{userid}/{star}/{end}',[AbsensiController::class,'showAbsenRange']);
+Route::get('/RekapAllAbs/{userid}',[AbsensiController::class,'RekapAllAbs']);
 Route::get('/showAllAbsen',[AbsensiController::class,'index']);
 Route::get('/showAbsenById/{id}',[AbsensiController::class,'showId']);
 Route::get('/showAbsenByDept/{deptId}',[AbsensiController::class,'showByDept']);
