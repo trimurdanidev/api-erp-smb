@@ -7,10 +7,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Models\MasterUser;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use PhpParser\Node\Stmt\TryCatch;
+
 
 class MasterUserController extends Controller
 {
@@ -41,10 +43,15 @@ class MasterUserController extends Controller
 
     public function showUser($user): JsonResponse
     {
-        $masteruser = MasterUser::where('user', '=', $user)->first();
-        if (!$masteruser) {
+        $masteruser = DB::table("master_user")
+            ->select("master_user.*", "master_department.departmentcode", "master_department.description as department_name")
+            ->join('master_department', 'master_department.departmentid', '=', 'master_user.departmentid')
+            ->where('master_user.user', '=', $user)->first();
+
+        if (empty($masteruser)) {
             return response()->json(['message' => 'User Tidak Ditemukan'], 404);
         }
+        
         return response()->json([
             'message' => "Berhasil",
             'data' => $masteruser
