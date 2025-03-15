@@ -168,7 +168,7 @@ class MasterUserController extends Controller
 
 
         if (!Hash::check($request->password, $user->password)) {
-            return response()->json(['error' => 'Password Salah'], 401);
+            return response()->json(['error' => 'Password Salah'], 404);
         }
 
         $token = Auth::guard('api')->login($user);
