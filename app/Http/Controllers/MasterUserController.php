@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\MasterUser;
 use App\Models\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Stmt\TryCatch;
 
 
@@ -47,6 +48,8 @@ class MasterUserController extends Controller
             ->select("master_user.*", "master_department.departmentcode", "master_department.description as department_name")
             ->join('master_department', 'master_department.departmentid', '=', 'master_user.departmentid')
             ->where('master_user.user', '=', $user)->first();
+
+        $masteruser->avatar = url($masteruser->avatar);
 
         if (empty($masteruser)) {
             return response()->json(['message' => 'User Tidak Ditemukan'], 404);
@@ -195,5 +198,48 @@ class MasterUserController extends Controller
     {
         Auth::guard('api')->logout();
         return response()->json(['message' => 'Logout Berhasil']);
+    }
+
+    
+
+    // upload avatar
+    public function uploadAvatar(Request $request, $id)
+    {
+        // Validasi file yang diupload
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
+        // Mencari pengguna berdasarkan ID
+        $user = MasterUser::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        // Cek jika file ada
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+            // Simpan file ke storage
+            $avatarPath = $request->file('avatar')->store('avatars', 'public');  // Menyimpan di storage/app/public/avatars
+
+            // Mendapatkan URL file yang disimpan
+            $avatarUrl = Storage::url($avatarPath);  // Mendapatkan URL file yang disimpan
+
+            // Perbarui kolom avatar di tabel master_user
+            $user->avatar = $avatarUrl;
+            $user->save(); // Simpan perubahan di database
+
+            // Return response dengan URL gambar
+            return response()->json([
+                'success' => true,
+                'avatarUrl' => url($avatarUrl),
+            ]);
+        }
+
+        // Jika upload gagal
+        return response()->json(['message' => 'Failed to upload avatar'], 400);
     }
 }
