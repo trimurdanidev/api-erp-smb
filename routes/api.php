@@ -23,6 +23,7 @@ use App\Http\Controllers\AbsensiController;
 // });
 //Master User
 Route::post('/add',[MasterUserController::class,'store']);
+Route::post('/upload-avatar/{id}',[MasterUserController::class,'uploadAvatar']);
 Route::get('/showAll',[MasterUserController::class,'index']);
 Route::get('/showById/{id}',[MasterUserController::class,'showId']);
 Route::get('/showByUser/{user}',[MasterUserController::class,'showUser']);
