@@ -13,8 +13,8 @@ class Absensi extends Model
     protected $table = 'absensi';
 
     protected $fillable = [
-        'user_id', 'date', 'time_in', 'longitude_in', 'latitude_in', 'images_in',
-        'time_out', 'longitude_out', 'latitude_out', 'images_out', 'absensi_ref', 'created_by'
+        'user_id', 'date', 'time_in', 'longitude_in', 'latitude_in', 'images_in','address_in',
+        'time_out', 'longitude_out', 'latitude_out', 'images_out' ,'address_out' ,'absensi_ref', 'created_by'
     ];
 
     protected $dates = ['deleted_at'];
