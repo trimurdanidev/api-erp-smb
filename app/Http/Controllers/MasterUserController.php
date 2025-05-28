@@ -54,7 +54,7 @@ class MasterUserController extends Controller
         if (empty($masteruser)) {
             return response()->json(['message' => 'User Tidak Ditemukan'], 404);
         }
-        
+
         return response()->json([
             'message' => "Berhasil",
             'data' => $masteruser
@@ -200,7 +200,7 @@ class MasterUserController extends Controller
         return response()->json(['message' => 'Logout Berhasil']);
     }
 
-    
+
 
     // upload avatar
     public function uploadAvatar(Request $request, $id)
@@ -241,5 +241,78 @@ class MasterUserController extends Controller
 
         // Jika upload gagal
         return response()->json(['message' => 'Failed to upload avatar'], 400);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Nomor WhatsApp harus Diisi'], 400);
+        }
+
+        $phone = $request->phone;
+
+        // Cari user berdasarkan nomor WA
+        $user = MasterUser::where('phone', $phone)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Nomor tidak terdaftar'], 404);
+        }
+
+        // Buat password baru
+        $newPassword = substr(str_shuffle('123456789abcdefghijklmnopqrstuvwxyz'), 0, 8);
+
+        // Update password
+        $user->password = Hash::make($newPassword);
+        $user->save();
+
+        //ERP SMB Web
+        DB::statement("
+        UPDATE db_sperepart_bekasi.master_user 
+        SET password = :password 
+        WHERE user = :user
+    ", [
+            'password' => Hash::make($newPassword),
+            'user' => $user->user
+        ]);
+
+        // Kirim lewat Fonnte
+        $message = "*ERP SMB (Mobile)*
+
+Hello, {$user->description}
+        
+Berhasil Reset Password. Berikut adalah Password Anda :  *{$newPassword}*.";
+        $this->sendFonnteMessage($phone, $message);
+
+        return response()->json(['message' => 'Password berhasil direset dan dikirim via WhatsApp'], 200);
+    }
+
+    public function sendFonnteMessage($phone, $message)
+    {
+        $token = env('FONNTE_TOKEN');
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, [
+            CURLOPT_URL => "https://api.fonnte.com/send",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => [
+                'target' => $phone,
+                'message' => $message,
+            ],
+            CURLOPT_HTTPHEADER => [
+                "Authorization: $token"
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+
+        \Log::info('Fonnte response: ' . $response);
     }
 }

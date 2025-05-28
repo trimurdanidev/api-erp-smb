@@ -29,6 +29,7 @@ Route::get('/showById/{id}',[MasterUserController::class,'showId']);
 Route::get('/showByUser/{user}',[MasterUserController::class,'showUser']);
 Route::put('/update/{id}',[MasterUserController::class,'update']);
 Route::delete('/delete/{id}',[MasterUserController::class,'destroy']);
+Route::post('/reset-password', [MasterUserController::class, 'resetPassword']);
 
 //Master Department
 Route::post('/addDept',[MasterDepartmentController::class,'store']);
